@@ -63,7 +63,21 @@ interface CartItem extends Product {
         return newItems;
       }),
 
-      clearCart: () => set([])
+      clearCart: () => set([]),
+      updateProductQuantity: (productId:string , newQuantity:number ) => {
+        update((items) => {
+          const productIndex = items.findIndex((item) => item.product_id === productId);
+          if (productIndex !== -1) {
+            const updatedItems = [...items];
+            updatedItems[productIndex] = {
+              ...updatedItems[productIndex],
+              quantity: newQuantity
+            };
+            return updatedItems;
+          }
+          return items;
+        });
+      }
     };
 }
   

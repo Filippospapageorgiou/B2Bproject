@@ -20,14 +20,6 @@ function createUserStore() {
     }
   }
 
-    // New function to get the current user's id
-  function getUserId() {
-       let currentId: string | null = null;
-        // Temporarily subscribe to get the current value and unsubscribe immediately
-         const unsubscribe = subscribe(user => currentId = user.id);
-         unsubscribe(); // Unsubscribe immediately after getting the value
-        return currentId;
-    }
 
   return {
     subscribe,
@@ -51,7 +43,7 @@ function createUserStore() {
 
 
 export const authStore = createUserStore();
-authStore.initialize(); // Initialize the store on creation
+authStore.initialize();
 
 
 

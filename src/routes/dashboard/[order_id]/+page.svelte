@@ -2,12 +2,11 @@
     import { onMount } from 'svelte';
     import { supabase } from '$lib/supabaseClient';
     import { page } from '$app/stores';
-    import { authStore } from '$lib/authStore';
-    import { get } from 'svelte/store';
+    import { goto } from '$app/navigation';
+    import { cartStore } from '$lib/productStore';
     import { Modal, getModalStore, type ModalSettings,Toast , getToastStore } from '@skeletonlabs/skeleton';
     import { initializeStores } from '@skeletonlabs/skeleton';
 	  import Loader from "$lib/components/loader.svelte";
-    import { v4 as uuidv4 } from 'uuid';
 
 
     initializeStores();
@@ -18,6 +17,7 @@
     let enrichedOrderItems: any[] = [];
     let isLoading = true;
     let order_id: any;
+    
 
     $: order_id = $page.params.order_id; // If using SvelteKit dynamic routing
 
@@ -120,18 +120,25 @@
         return total + (item.quantity * item.productDetails.price);
     },0).toFixed(2);
 
-
+    
 
     function confirmCheckout():Promise<boolean>{
       return new Promise<boolean>((resolve)=>{
           const modal: ModalSettings = {
             type: 'confirm',
             title:'Please confirm',
-            body:'Are you sure you want to checkout?',
+            body:'Are you sure you want to Reorder',
             response:(response:boolean)=> resolve(response)
           }
           modalStore.trigger(modal);
       });
+    }
+
+    async function addItemsToCart(items: any[]) {
+      cartStore.clearCart();
+        items.forEach(item => {
+            cartStore.addProduct({ ...item.productDetails, product_id: item.product_id }, item.quantity);
+        });
     }
 
     async function finalizeCheckout() {
@@ -144,48 +151,11 @@
       return; // Make sure to return here to stop further execution
     }
 
-    isLoading = true;
-    
+    // Add items to cart
+    await addItemsToCart(enrichedOrderItems);
 
-    const userId = $authStore?.id; // Ensure this correctly fetches the user's ID
-   
-    if (userId) {
-      try {
-        const { data: insertResult, error: insertError } = await supabase
-              .from('orders')
-              .insert({ user_id: userId,status: 'Completed',created_at: new Date(),comments:orderDetails.comments});
-        
-        if (!insertError) {
-                const { data: mostRecentOrder, error: fetchError } = await supabase
-                .from('orders')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
-
-          const order_id = mostRecentOrder?.order_id;
-          for(const item of orderItems){
-              const { data: insertResult, error: insertError } = await supabase
-              .from('order_items')
-              .insert({item_id:uuidv4(),order_id: order_id,product_id: item.product_id,quantity: item.quantity,price: item.price});
-          }
-        }
-        toastStore.trigger({
-          message: 'Checkout successful!',
-          background: 'variant-ghost-success', // Adjust the message and background as needed
-        });
-      } catch (error) {
-        toastStore.trigger({
-          message: 'Checkout failed. Please try again.',
-          background: 'variant-ghost-error',
-        });
-      } finally {
-        isLoading = false;
-      }
-    }  else{
-      isLoading = false;
-    }
+    // Navigate to checkout page
+    goto('/dashboard/checkout');
   }
 </script>
 

@@ -4,8 +4,10 @@
     import { orderStore } from '$lib/productStore';
     import Loader from "$lib/components/loader.svelte";
 	import { goto } from '$app/navigation';
+    import { authStore } from '$lib/authStore';
 
     let isLoading:boolean = true;
+    
 
     onMount(async ()=>{
         const timeoutPromise = new Promise(resolve => setTimeout(resolve,1000));
@@ -13,6 +15,7 @@
         const dataPromise = supabase
             .from('orders')
             .select('*')
+            .eq('user_id', $authStore.id)
             .then(({ data: orders, error }) => {
                 if (error) {
                     console.error('Error fetching orders:', error);
@@ -43,7 +46,7 @@
 {:else}
 <section class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
     <div>
-        <h1 class="text-3xl font-bold text-gray-900">Orders</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Your Orders</h1>
         <div class="mt-4">
             <div class="flex flex-col">
                 <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">

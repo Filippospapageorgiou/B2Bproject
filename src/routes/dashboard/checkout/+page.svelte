@@ -1,6 +1,5 @@
 <script lang="ts">
 	  import { authStore } from "$lib/authStore";
-	  import Authcheck from "$lib/components/Authcheck.svelte";
     import { cartStore } from '$lib/productStore';
     import { onMount } from 'svelte';
     import { supabase } from '$lib/supabaseClient';
@@ -17,6 +16,7 @@
     const modalStore = getModalStore();
     let isLoading:boolean = false;
     let comment:string='';
+    let isValid:boolean=true;
     
 
     let sum=0;
@@ -59,7 +59,7 @@
 
     isLoading = true;
     
-
+   if(isValid){
     const userId = $authStore?.id; // Ensure this correctly fetches the user's ID
     const cartItems = $cartStore;
    
@@ -102,6 +102,27 @@
       }
     }  else{
       isLoading = false;
+    }
+   }else{
+    isLoading = false;
+    toastStore.trigger({
+        message: 'Quantitys of products not Valid!!',
+        background: 'variant-ghost-error',
+      });
+   }
+  }
+
+  function updateItemQuantity(item:any,quantity:number){
+    if(quantity>0 && quantity%1===0){
+      isValid = true;
+      cartStore.updateProductQuantity(item,quantity);
+      calculateSum();
+    }else{
+      isValid = false;
+      toastStore.trigger({
+        message: 'Quantity must be valid!!',
+        background: 'variant-ghost-warning',
+      });
     }
   }
     
@@ -148,7 +169,7 @@
       
                     <div>
                       <dt class="inline">Quantity:</dt>
-                      <dd class="inline">{item.quantity}</dd>
+                      <input type="number" class="input variant-ringed-warning w-20 h-6" bind:value={item.quantity} on:change={() => updateItemQuantity(item, Number(item.quantity))}/>
                     </div>
                   </dl>
                 </div>
