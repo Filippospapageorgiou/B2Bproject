@@ -1,6 +1,8 @@
+Full stack Project that simulates B2B orders for retail store 
+this was of my first projects it doesnt have clean code but i learn a lot and step up my level as a full stack dev!!
+B2B ORDER HUB with Svelte kit and Supabase and postgresSQL.
+Style: tailwindCSS and SkeletonUI library💀
 
-#B2B ORDER HUB with Svelte kit and Supabase and postgresSQL.
-#Style: tailwindCSS and SkeletonUI library💀
 ![image](https://github.com/Filippospapageorgiou/B2Bproject/assets/87243873/7e42b951-0cb1-447e-94b5-6ca10bbe38b8)
 
 ![image](https://github.com/Filippospapageorgiou/B2Bproject/assets/87243873/8661dd0e-15a7-4dd1-a6b3-5e3cdceccb3f)
